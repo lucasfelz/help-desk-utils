@@ -1,0 +1,121 @@
+# Como adicionar remotamente uma impressora para um pc via cmd via psexec remoto
+
+
+Instalar uma impressora compartilhada de um servidor de impressão no Windows via Prompt de Comando (CMD) pode ser feito de forma eficiente usando a ferramenta `rundll32` com a biblioteca `printui.dll`. 
+
+Aqui estão os métodos principais, do mais simples ao mais avançado (para todos os usuários).
+
+Pré-requisitos
+
+- **Nome do Servidor:** O nome da rede ou IP do servidor (ex: `ServidorPrint`)
+- **Nome do Compartilhamento:** O nome da impressora como ela é compartilhada no servidor (ex: `HP_LaserJet`)
+- **Permissões:** Executar o CMD como Administrador. 
+
+---
+
+Método 1: Adicionar Impressora no Usuário Atual (Mais Comum)
+
+Este comando instala a impressora para o usuário logado no momento.
+
+1. Abra o CMD como Administrador.
+2. Execute o seguinte comando:
+    
+    cmd
+    
+    ```
+    rundll32 printui.dll,PrintUIEntry /in /n "\\ServidorPrint\HP_LaserJet"
+    ```
+    
+    - `/in`: Adiciona uma conexão de impressora de rede.
+    - `/n`: Especifica o nome da impressora (\servidor\impressora). 
+
+---
+
+Método 2: Adicionar Impressora para TODOS os Usuários (Per-Machine)
+
+Se você precisa que a impressora apareça para qualquer usuário que logar na máquina (inclusive para scripts de logon), use a opção `/ga`. 
+
+1. Abra o CMD como Administrador.
+2. Execute o comando:
+    
+    cmd
+    
+    ```
+    rundll32 printui.dll,PrintUIEntry /ga /n "\\ServidorPrint\HP_LaserJet"
+    ```
+    
+3. **Importante:** Reinicie o spooler de impressão ou faça logoff/login para a impressora aparecer para todos os usuários.
+    
+    cmd
+    
+    ```
+    net stop spooler && net start spooler
+    ```
+    
+     
+
+---
+
+Método 3: Definir a Impressora Padrão 
+
+Para adicionar a impressora e já defini-la como padrão, adicione a opção `/y`: 
+
+cmd
+
+```
+rundll32 printui.dll,PrintUIEntry /in /y /n "\\ServidorPrint\HP_LaserJet"
+```
+
+---
+
+Método 4: Usando PowerShell (Recomendado/Moderno)
+
+Embora a pergunta seja sobre CMD, o PowerShell é mais moderno e confiável para tarefas de rede.
+
+powershell
+
+```
+Add-Printer -ConnectionName "\\ServidorPrint\HP_LaserJet"
+```
+
+---
+
+Como Remover a Impressora via CMD
+
+Se precisar remover uma impressora instalada via servidor:
+
+cmd
+
+```
+rundll32 printui.dll,PrintUIEntry /dn /n "\\ServidorPrint\HP_LaserJet"
+```
+
+- `/dn`: Exclui uma conexão de impressora de rede. 
+
+Solução de Problemas
+
+- **Erro 740/Permissões:** Certifique-se de que o CMD está aberto com **"Executar como Administrador"**.
+- **Erro de Conexão:** Verifique se o nome do servidor e o nome do compartilhamento estão corretos e se você tem acesso à rede no servid
+  
+  
+  
+  
+  exemplo de sucesso:
+  
+  
+  
+  C:\WINDOWS\system32>wmic printer where "name='\\\\srv-impressao\\NEP - Lexmark X464de'" call setdefaultprinter
+Executando (\\AFPES-80\ROOT\CIMV2:Win32_Printer.DeviceID="\\\\srv-impressao\\NEP - Lexmark X464de")->setdefaultprinter()
+O método foi executado com êxito.
+
+Parâmetros de saída:
+instance of __PARAMETERS
+{
+        ReturnValue = 0;
+};
+
+C:\WINDOWS\system32>
+
+
+
+
