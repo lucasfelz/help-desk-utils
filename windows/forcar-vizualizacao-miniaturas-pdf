@@ -1,0 +1,174 @@
+# Problemas de confiança na visualização de miniaturas
+
+````ps1
+# =====================================================================
+# Script: CorrigirVisualizacaoExplorer_Avancado.ps1
+# Função: Resolver problemas de visualização e miniaturas no Explorer
+# =====================================================================
+
+# Requer execução como Administrador
+#Requires -RunAsAdministrator
+
+Write-Host "╔═══════════════════════════════════════════════════════════╗" -ForegroundColor Cyan
+Write-Host "║  CORREÇÃO DE VISUALIZAÇÃO DO EXPLORADOR DE ARQUIVOS      ║" -ForegroundColor Cyan
+Write-Host "╚═══════════════════════════════════════════════════════════╝" -ForegroundColor Cyan
+Write-Host ""
+
+# Menu de opções
+Write-Host "Escolha uma opção:" -ForegroundColor Yellow
+Write-Host "[1] Desbloquear arquivos de uma pasta específica" -ForegroundColor White
+Write-Host "[2] Corrigir configurações do Explorer (sem desbloquear arquivos)" -ForegroundColor White
+Write-Host "[3] Fazer ambos (Recomendado)" -ForegroundColor Green
+Write-Host "[4] Limpar cache de miniaturas" -ForegroundColor White
+Write-Host "[5] Reparação completa (Todas as opções acima)" -ForegroundColor Magenta
+Write-Host ""
+
+$Opcao = Read-Host "Digite o número da opção"
+
+# Função para desbloquear arquivos
+function Desbloquear-Arquivos {
+    param([string]$Pasta)
+    
+    if (-Not (Test-Path $Pasta)) {
+        Write-Host "❌ Caminho inválido!" -ForegroundColor Red
+        return $false
+    }
+
+    Write-Host "`n🔍 Analisando arquivos em: $Pasta" -ForegroundColor Cyan
+    
+    $Arquivos = Get-ChildItem -Path $Pasta -Recurse -File -ErrorAction SilentlyContinue
+    $Total = $Arquivos.Count
+
+    if ($Total -eq 0) {
+        Write-Host "⚠️  Nenhum arquivo encontrado." -ForegroundColor Yellow
+        return $false
+    }
+
+    Write-Host "📦 Total de arquivos: $Total" -ForegroundColor Green
+    Write-Host "🔓 Desbloqueando arquivos..." -ForegroundColor Cyan
+
+    $Contador = 0
+    $Desbloqueados = 0
+
+    foreach ($Arquivo in $Arquivos) {
+        try {
+            Unblock-File -Path $Arquivo.FullName -ErrorAction SilentlyContinue
+            $Desbloqueados++
+        } catch {}
+        
+        $Contador++
+        $Percentual = [math]::Round(($Contador / $Total) * 100, 2)
+        Write-Progress -Activity "Desbloqueando arquivos..." -Status "$Contador de $Total ($Percentual%)" -PercentComplete $Percentual
+    }
+
+    Write-Progress -Activity "Desbloqueando arquivos..." -Completed
+    Write-Host "✅ Arquivos processados: $Desbloqueados de $Total" -ForegroundColor Green
+    return $true
+}
+
+# Função para corrigir configurações do Explorer
+function Corrigir-ConfiguracoesExplorer {
+    Write-Host "`n🔧 Corrigindo configurações do Explorer..." -ForegroundColor Cyan
+    
+    try {
+        # Habilitar miniaturas e visualizações
+        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name IconsOnly -Value 0 -Force -ErrorAction Stop
+        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name ShowPreviewHandlers -Value 1 -Force -ErrorAction Stop
+        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name DisableThumbnailCache -Value 0 -Force -ErrorAction Stop
+        
+        # Configurações adicionais
+        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name ShowInfoTip -Value 1 -Force -ErrorAction Stop
+        Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name ShowPreviewPane -Value 1 -Force -ErrorAction Stop
+        
+        # Habilitar visualizador de fotos
+        if (Test-Path "HKCU:\Software\Classes\Applications\photoviewer.dll\shell\open") {
+            Set-ItemProperty -Path "HKCU:\Software\Classes\Applications\photoviewer.dll\shell\open" -Name MuiVerb -Value "Visualizador de Fotos" -Force -ErrorAction SilentlyContinue
+        }
+        
+        Write-Host "✅ Configurações corrigidas com sucesso!" -ForegroundColor Green
+        return $true
+    } catch {
+        Write-Host "❌ Erro ao modificar o registro: $_" -ForegroundColor Red
+        return $false
+    }
+}
+
+# Função para limpar cache de miniaturas
+function Limpar-CacheMiniaturas {
+    Write-Host "`n🧹 Limpando cache de miniaturas..." -ForegroundColor Cyan
+    
+    $CachePaths = @(
+        "$env:LOCALAPPDATA\Microsoft\Windows\Explorer\thumbcache_*.db",
+        "$env:LOCALAPPDATA\Microsoft\Windows\Explorer\iconcache_*.db"
+    )
+    
+    $Removidos = 0
+    foreach ($Pattern in $CachePaths) {
+        $Arquivos = Get-ChildItem -Path $Pattern -Force -ErrorAction SilentlyContinue
+        foreach ($Arquivo in $Arquivos) {
+            try {
+                Remove-Item -Path $Arquivo.FullName -Force -ErrorAction Stop
+                $Removidos++
+            } catch {
+                Write-Host "⚠️  Não foi possível remover: $($Arquivo.Name)" -ForegroundColor Yellow
+            }
+        }
+    }
+    
+    Write-Host "✅ Cache limpo! Arquivos removidos: $Removidos" -ForegroundColor Green
+}
+
+# Função para reiniciar o Explorer
+function Reiniciar-Explorer {
+    Write-Host "`n🔄 Reiniciando o Explorador de Arquivos..." -ForegroundColor Cyan
+    Start-Sleep -Seconds 1
+    Stop-Process -Name explorer -Force -ErrorAction SilentlyContinue
+    Start-Sleep -Seconds 2
+    Start-Process explorer.exe
+    Write-Host "✅ Explorer reiniciado!" -ForegroundColor Green
+}
+
+# Executar ações baseadas na opção escolhida
+switch ($Opcao) {
+    "1" {
+        $Pasta = Read-Host "`nDigite o caminho completo da pasta (ex: C:\Users\SeuUsuario\Downloads)"
+        Desbloquear-Arquivos -Pasta $Pasta
+        Reiniciar-Explorer
+    }
+    "2" {
+        Corrigir-ConfiguracoesExplorer
+        Reiniciar-Explorer
+    }
+    "3" {
+        $Pasta = Read-Host "`nDigite o caminho completo da pasta (ex: C:\Users\SeuUsuario\Downloads)"
+        Desbloquear-Arquivos -Pasta $Pasta
+        Corrigir-ConfiguracoesExplorer
+        Reiniciar-Explorer
+    }
+    "4" {
+        Limpar-CacheMiniaturas
+        Reiniciar-Explorer
+    }
+    "5" {
+        $Pasta = Read-Host "`nDigite o caminho completo da pasta (ex: C:\Users\SeuUsuario\Downloads)"
+        Desbloquear-Arquivos -Pasta $Pasta
+        Corrigir-ConfiguracoesExplorer
+        Limpar-CacheMiniaturas
+        Reiniciar-Explorer
+    }
+    default {
+        Write-Host "❌ Opção inválida!" -ForegroundColor Red
+        exit
+    }
+}
+
+Write-Host "`n╔═══════════════════════════════════════════════════════════╗" -ForegroundColor Green
+Write-Host "║              🎉 PROCESSO CONCLUÍDO COM SUCESSO!          ║" -ForegroundColor Green
+Write-Host "╚═══════════════════════════════════════════════════════════╝" -ForegroundColor Green
+Write-Host "`nSe o problema persistir, tente:" -ForegroundColor Yellow
+Write-Host "• Executar a opção [5] Reparação completa" -ForegroundColor White
+Write-Host "• Verificar se há atualizações pendentes do Windows" -ForegroundColor White
+Write-Host "• Executar o comando: sfc /scannow no Prompt de Comando" -ForegroundColor White
+Write-Host ""
+Read-Host "Pressione ENTER para sair"
+```
