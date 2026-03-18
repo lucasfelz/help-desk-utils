@@ -9,6 +9,7 @@ Cada arquivo contém checklists, comandos e passos testados.
 Dica: Use Ctrl+Fpara buscas rápidas ou clone o repo para acesso offline.
 
 🗂️ Estrutura de Massas
+
 windows/- Problemas comuns no Windows (atualizações, BSOD, etc.).
 
 redes/- Configurações de rede, Wi-Fi, VPN.
