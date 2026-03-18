@@ -1,0 +1,19 @@
+# Problemas com failover 2 actives directoryes
+## Tipos possíveis de failover:
+
+- **Ativo-Passivo (Hot Standby):** Um DC ativo lida com todo o tráfego, enquanto o outro (passivo) está pronto para assumir rapidamente em caso de falha, com menor utilização de recursos no standby.
+- **Ativo-Ativo (Load Balancing/Ativo-Ativo):** Ambos os DCs ou mais estão ativos e lidando com o tráfego simultaneamente, otimizando o uso de recursos e melhorando o desempenho, sendo mais complexo de configurar.
+
+### Erro de rede nos monitores Mindray e outros dispositivos
+- Monitores de UTI Mindray e outros dispositivos podem ficar confusos sobre qual resposta DHCP aceitar e ficar travados solicitando IP via DHCP em loop
+
+
+*Alguns monitores não conseguiam nem pegar IP, dando falha de rede, enquanto outros conseguiam, mas falhavam algum tempo depois.*
+
+## Correção do problema: Após colocar o failover entre AD's como Hot Standby
+
+- Após colocar o failover entre AD's como hot Standby, o problema foi resolvido, confirmando que os equipamentos estavam "confusos" entre qual requisição acompanhar, ao primeiro ou ao segundo servidor.
+ 
+
+
+
