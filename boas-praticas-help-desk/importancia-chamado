@@ -1,0 +1,78 @@
+# Importância do CHAMADO
+### 🧾 Frase modelo para responder usuários:
+
+> "Por favor, abra um chamado no sistema para que possamos registrar e priorizar seu atendimento corretamente. Assim garantimos que sua solicitação seja tratada de forma organizada e com o devido acompanhamento."
+
+### ✅ **Por que o help desk só deve atender com chamado?**
+
+#### 1. **Rastreamento e histórico**
+
+- Garante que todas as solicitações fiquem registradas.
+    
+- Permite acompanhar o que foi feito, quando e por quem.
+    
+- Ajuda a identificar padrões de problemas recorrentes.
+    
+
+#### 2. **Priorização e organização**
+
+- Ajuda a equipe a seguir uma fila lógica (por prioridade ou SLA).
+    
+- Evita que "interrupções informais" (pedidos no corredor, no WhatsApp etc.) atrapalhem o fluxo.
+    
+
+#### 3. **Accountability (responsabilidade)**
+
+- Protege tanto o técnico quanto o solicitante.
+    
+- Se algo der errado ou não for resolvido, há histórico para análise.
+    
+- Facilita auditorias internas ou externas.
+    
+
+#### 4. **Medição de desempenho**
+
+- Sem chamados, não há como medir:
+    
+    - Quantidade de atendimentos
+        
+    - Tempo médio de resposta
+        
+    - Eficiência da equipe
+        
+
+#### 5. **Evita privilégios ou favorecimentos**
+
+- Garante tratamento igual para todos os usuários.
+    
+- Evita que “amigos do TI” tenham atendimento preferencial.
+    
+
+---
+
+### ⚠️ Exceções (casos de urgência)
+
+Claro, existem situações em que **o chamado pode ser aberto depois**:
+
+- Sistemas críticos fora do ar
+    
+- Falha geral na rede
+    
+- Ataques ou incidentes de segurança
+    
+- Emergências em produção
+    
+
+Nesses casos, o atendimento pode ser **imediato**, mas o chamado deve ser **aberto logo em seguida**, para registro.
+
+---
+
+### ✅ Como aplicar isso na prática
+
+- **Treinamento dos usuários**: todos devem entender que “sem chamado, sem atendimento” é regra.
+    
+- **Ferramenta de chamados acessível**: se for difícil abrir chamado, as pessoas vão tentar burlar.
+    
+- **Suporte da liderança**: a gestão precisa reforçar e apoiar essa política.
+    
+- **Comunicação clara**: cartazes, avisos no sistema ou assinaturas de e-mail com “Favor abrir chamado no sistema XYZ para atendimento”.
